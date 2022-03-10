@@ -5,22 +5,36 @@ const height = 650; //- margin.top - margin.bottom;
 
 // Append svg object to the body of the page to house Scatterplot1
 const svg1 = d3.select("#vis-holder")
-                .append("svg")
-                .attr("width", width - margin.left - margin.right)
-                .attr("height", height - margin.top - margin.bottom)
-                .attr("viewBox", [0, 0, width, height]); 
+    .append("svg")
+    .attr("width", width - margin.left - margin.right)
+    .attr("height", height - margin.top - margin.bottom)
+    .attr("viewBox", [0, 0, width, height]);
 
 // Initialize brush for Scatterplot1 and points. We will need these to be global. 
 let brush1; 
 let myCircles1; 
 
-//TODO: append svg object to the body of the page to house Scatterplot2 (call it svg2)
+//xTODO: append svg object to the body of the page to house Scatterplot2 (call it svg2) *done?*
+const svg2 = d3.select("#vis-holder")
+    .append("svg")
+    .attr("width", width - margin.left - margin.right)
+    .attr("height", height - margin.top - margin.bottom)
+    .attr("viewBox", [0, 0, width, height]);
 
-//TODO: Initialize brush for Scatterplot2 and points. We will need these to be global.
+//xTODO: Initialize brush for Scatterplot2 and points. We will need these to be global. *done?*
+let brush2;
+let myCircles2;
 
-//TODO: append svg object to the body of the page to house bar chart 
+//xTODO: append svg object to the body of the page to house bar chart *done?*
 
-//TODO: Initialize bars. We will need these to be global. 
+const svg3 = d3.select("#vis-holder")
+    .append("svg")
+    .attr("width", width - margin.left - margin.right)
+    .attr("height", height - margin.top - margin.bottom)
+    .attr("viewBox", [0, 0, width, height]);
+
+//xTODO: Initialize bars. We will need these to be global. *done?*
+let bars3;
 
 
 // Define color scale
@@ -96,20 +110,90 @@ d3.csv("data/iris.csv").then((data) => {
                               .style("fill", (d) => color(d.Species))
                               .style("opacity", 0.5);
 
-    //TODO: Define a brush (call it brush1)
+    //xTODO: Define a brush (call it brush1)
 
-    //TODO: Add brush1 to svg1
+    let brush1 = d3.brush()
+        .extent( [ [0,0], [width,height] ] )
+
+    //xTODO: Add brush1 to svg1
+
+    svg1.call(brush1)
     
   }
 
-  //TODO: Scatterplot 2 (show Sepal width on x-axis and Petal width on y-axis)
+  //xTODO: Scatterplot 2 (show Sepal width on x-axis and Petal width on y-axis)
   {
-    // Scatterplot2 code here 
+    let xKey2 = "Sepal_Width";
+    let yKey2 = "Petal_Width";
+
+    // Find max x
+    let maxX2 = d3.max(data, (d) => { return d[xKey2]; });
+
+    // Create X scale
+    let x2 = d3.scaleLinear()
+        .domain([0,maxX2])
+        .range([margin.left, width-margin.right]);
+
+    // Add x axis
+    svg2.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x2))
+        .attr("font-size", '20px')
+        .call((g) => g.append("text")
+            .attr("x", width - margin.right)
+            .attr("y", margin.bottom - 4)
+            .attr("fill", "black")
+            .attr("text-anchor", "end")
+            .text(xKey2)
+        );
+
+    // Finx max y
+    let maxY2 = d3.max(data, (d) => { return d[yKey2]; });
+
+    // Create Y scale
+    let y2 = d3.scaleLinear()
+        .domain([0, maxY2])
+        .range([height - margin.bottom, margin.top]);
+
+    // Add y axis
+    svg2.append("g")
+        .attr("transform", `translate(${margin.left}, 0)`)
+        .call(d3.axisLeft(y2))
+        .attr("font-size", '20px')
+        .call((g) => g.append("text")
+            .attr("x", 0)
+            .attr("y", margin.top)
+            .attr("fill", "black")
+            .attr("text-anchor", "end")
+            .text(yKey2)
+        );
+
+    // Add points
+    const myCircles2 = svg2.selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("id", (d) => d.id)
+        .attr("cx", (d) => x2(d[xKey2]))
+        .attr("cy", (d) => y2(d[yKey2]))
+        .attr("r", 8)
+        .style("fill", (d) => color(d.Species))
+        .style("opacity", 0.5);
+
+    //xTODO: Define a brush (call it brush2)
+
+    let brush2 = d3.brush()
+        .extent( [ [0,0], [width,height] ] )
+
+    //xTODO: Add brush2 to svg2
+
+    svg2.call(brush2)
+
   }
 
   //TODO: Barchart with counts of different species
   {
-    // Bar chart code here 
+    // Bar chart code here
   }
 
   //Brushing Code---------------------------------------------------------------------------------------------
@@ -118,7 +202,9 @@ d3.csv("data/iris.csv").then((data) => {
   function clear() {
       svg1.call(brush1.move, null);
       
-      //TODO: add code to clear existing brush from svg2
+      //xTODO: add code to clear existing brush from svg2
+
+      svg2.call(brush2.move, null);
   }
 
   // Call when Scatterplot1 is brushed 
